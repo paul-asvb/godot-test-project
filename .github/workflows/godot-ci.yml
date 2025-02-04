@@ -8,6 +8,15 @@ env:
   EXPORT_NAME: test-project
   PROJECT_PATH: test-project
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   # export-windows:
   #   name: Windows Export
@@ -81,20 +90,13 @@ jobs:
         run: |
           mkdir -v -p build/web
           godot --headless --verbose --export-release "Web" "build/web/index.html"
-          ls build/web
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: web
-          path: build/web
-      - name: Install rsync 📚
-        run: |
-          apt-get update && apt-get install -y rsync
-      - name: Deploy to GitHub Pages 🚀
-        uses: JamesIves/github-pages-deploy-action@releases/v4
-        with:
-          branch: gh-pages # The branch the action should deploy to.
-          folder: build/web # The folder the action should deploy.
+          path: 'build/web'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
   # export-mac:
   #   name: Mac Export
